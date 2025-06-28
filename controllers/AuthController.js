@@ -13,10 +13,11 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const validEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
-    if (!validEmail) {
-      return res.status(400).json({ message: "Invalid email" });
-    }
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+if (!validEmail) {
+  return res.status(400).json({ message: "Invalid email" });
+}
+
 
     if (password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });

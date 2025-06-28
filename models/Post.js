@@ -29,6 +29,9 @@ const postSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    categories: [{ type: String }],
+    excerpt: { type: String },
+
 
     comments: [
       {
