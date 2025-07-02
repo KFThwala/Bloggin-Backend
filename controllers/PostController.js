@@ -6,8 +6,11 @@ import Comment from "../models/Comment.js"; // ✅ Required
 // Create a new post
 export const createPost = async (req, res) => {
   try {
-    const { title, excerpt, content, image, categories } = req.body;
-    const author = req.user._id; // assuming auth middleware sets req.user
+    const { title, excerpt, content, categories } = req.body;
+    const author = req.user._id; // from protect middleware
+
+    // Use the Cloudinary URL set by uploadToCloudinary middleware
+    const image = req.file ? req.file.cloudinaryUrl : null;
 
     const post = new Post({
       title,
@@ -24,6 +27,7 @@ export const createPost = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Get all posts (with optional pagination)
 export const getPosts = async (req, res) => {

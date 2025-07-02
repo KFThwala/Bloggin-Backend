@@ -9,22 +9,40 @@ import {
   getRecentPosts,
   getSuggestedPosts,
 } from "../controllers/PostController.js";
-import { protect } from "../middleware/authMiddleware.js";
+
+import upload, { uploadToCloudinary } from "../middleware/Upload.js";
+import { protect } from "../middleware/AuthMiddleware.js";
 
 const router = express.Router();
 
-// Public routes
+// POST /api/posts - Create new post with image upload
+router.post(
+  "/create",
+  protect,
+  upload.single("image"),
+  uploadToCloudinary("posts"), // optional Cloudinary folder name
+  createPost
+);
+
+// GET /api/posts
 router.get("/", getPosts);
+
+// GET /api/posts/featured
 router.get("/featured", getFeaturedPosts);
+
+// GET /api/posts/recent
 router.get("/recent", getRecentPosts);
+
+// GET /api/posts/suggested (requires auth)
 router.get("/suggested", protect, getSuggestedPosts);
 
-// This must come after the above to avoid conflicts
+// GET /api/posts/:id
 router.get("/:id", getPostById);
 
-// Protected routes
-router.post("/", protect, createPost);
+// PUT /api/posts/:id
 router.put("/:id", protect, updatePost);
+
+// DELETE /api/posts/:id
 router.delete("/:id", protect, deletePost);
 
 export default router;
