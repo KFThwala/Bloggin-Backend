@@ -169,3 +169,52 @@ export const getSuggestedPosts = async (req, res) => {
   }
 };
 
+// Get trending posts based on number of likes
+export const getTrendingPosts = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .sort({ likes: -1 }) // more likes = higher rank
+      .limit(10)
+      .populate("author", "fullName avatar");
+
+    const postsWithLikeCount = posts.map(post => ({
+      ...post.toObject(),
+      likesCount: post.likes.length,
+    }));
+
+    res.json(postsWithLikeCount);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+// controllers/postController.js
+export const toggleLikePost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.user._id;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const alreadyLiked = post.likes.includes(userId);
+
+    if (alreadyLiked) {
+      // Unlike
+      post.likes = post.likes.filter(id => id.toString() !== userId.toString());
+    } else {
+      // Like
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    res.json({
+      liked: !alreadyLiked,
+      likesCount: post.likes.length,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+

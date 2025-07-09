@@ -8,6 +8,8 @@ import {
   // getFeaturedPosts,
   getRecentPosts,
   getSuggestedPosts,
+  getTrendingPosts,
+  toggleLikePost
 } from "../controllers/PostController.js";
 
 import upload, { uploadToCloudinary } from "../middleware/Upload.js";
@@ -35,6 +37,11 @@ router.get("/recent", getRecentPosts);
 
 // GET /api/posts/suggested (requires auth)
 router.get("/suggested", protect, getSuggestedPosts);
+
+// GET /api/posts/trending
+router.get("/trending", protect,getTrendingPosts);
+
+router.post("/:postId/like", protect, toggleLikePost);
 
 // GET /api/posts/:id
 router.get("/:id", getPostById);
