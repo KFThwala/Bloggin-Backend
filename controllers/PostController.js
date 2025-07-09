@@ -7,6 +7,9 @@ import Comment from "../models/Comment.js"; // ✅ Required
 export const createPost = async (req, res) => {
   try {
     const { title, excerpt, content, categories } = req.body;
+    if (!title || !excerpt || !content || !categories) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
     const author = req.user._id; // from protect middleware
 
     // Use the Cloudinary URL set by uploadToCloudinary middleware
@@ -30,30 +33,30 @@ export const createPost = async (req, res) => {
 
 
 // Get all posts (with optional pagination)
-export const getPosts = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+// export const getPosts = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const skip = (page - 1) * limit;
 
-    const posts = await Post.find()
-      .populate("author", "fullName email") // populate author info
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+//     const posts = await Post.find()
+//       .populate("author", "fullName email") // populate author info
+//       .sort({ createdAt: -1 })
+//       .skip(skip)
+//       .limit(limit);
 
-    const total = await Post.countDocuments();
+//     const total = await Post.countDocuments();
 
-    res.json({
-      page,
-      totalPages: Math.ceil(total / limit),
-      totalPosts: total,
-      posts,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+//     res.json({
+//       page,
+//       totalPages: Math.ceil(total / limit),
+//       totalPosts: total,
+//       posts,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
 
 // Get single post by id
 export const getPostById = async (req, res) => {
@@ -109,7 +112,7 @@ export const deletePost = async (req, res) => {
     if (!post) return res.status(404).json({ message: "Post not found" });
 
     // Check if user is author or admin
-    if (post.author.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+    if (post.author.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
@@ -121,38 +124,6 @@ export const deletePost = async (req, res) => {
   }
 };
 
-
-
-// Get featured posts - for example: top 5 posts with most likes
-
-
-export const getFeaturedPosts = async (req, res) => {
-  try {
-    // Aggregation pipeline to get posts sorted by number of likes (descending) and createdAt
-    const posts = await Post.aggregate([
-      {
-        $addFields: {
-          likesCount: { $size: { $ifNull: ["$likes", []] } }
-        }
-      },
-      {
-        $sort: { likesCount: -1, createdAt: -1 }
-      },
-      { $limit: 5 }
-    ]);
-
-    // Populate author after aggregation (including avatar)
-    const populatedPosts = await Post.populate(posts, {
-      path: "author",
-      select: "fullName avatar"
-    });
-
-    res.json(populatedPosts);
-  } catch (error) {
-    console.error("getFeaturedPosts error:", error);
-    res.status(500).json({ error: error.message });
-  }
-};
 
 
 // Get recent posts - top 10 most recent
@@ -181,17 +152,16 @@ export const getSuggestedPosts = async (req, res) => {
     let posts;
 
     if (userCategories.length > 0) {
-      // Find posts with at least one matching category
-      posts = await Post.find({ categories: { $in: userCategories } })
-        .sort({ createdAt: -1 })
-        .limit(5)
-        .populate("author", "fullName", "avatar");
-    } else {
-      // If no categories for user, return random posts
-      posts = await Post.aggregate([
-        { $sample: { size: 5 } }
-      ]);
-    }
+  posts = await Post.find({ categories: { $in: userCategories } })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .populate("author", "fullName avatar");
+} else {
+  const randomPosts = await Post.aggregate([{ $sample: { size: 5 } }]);
+  const postIds = randomPosts.map((p) => p._id);
+  posts = await Post.find({ _id: { $in: postIds } }).populate("author", "fullName avatar");
+}
+
 
     res.json(posts);
   } catch (error) {

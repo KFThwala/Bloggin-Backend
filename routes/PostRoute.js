@@ -1,11 +1,11 @@
 import express from "express";
 import {
   createPost,
-  getPosts,
+  // getPosts,
   getPostById,
   updatePost,
   deletePost,
-  getFeaturedPosts,
+  // getFeaturedPosts,
   getRecentPosts,
   getSuggestedPosts,
 } from "../controllers/PostController.js";
@@ -25,10 +25,10 @@ router.post(
 );
 
 // GET /api/posts
-router.get("/", getPosts);
+// router.get("/", getPosts);
 
 // GET /api/posts/featured
-router.get("/featured", getFeaturedPosts);
+// router.get("/featured", getFeaturedPosts);
 
 // GET /api/posts/recent
 router.get("/recent", getRecentPosts);
