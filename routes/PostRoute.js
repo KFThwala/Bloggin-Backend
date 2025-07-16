@@ -9,7 +9,8 @@ import {
   getRecentPosts,
   getSuggestedPosts,
   getTrendingPosts,
-  toggleLikePost
+  toggleLikePost,
+  getMyPosts
 } from "../controllers/PostController.js";
 
 import upload, { uploadToCloudinary } from "../middleware/Upload.js";
@@ -26,6 +27,7 @@ router.post(
   createPost
 );
 
+router.get("/getMy", protect, getMyPosts);
 // GET /api/posts
 // router.get("/", getPosts);
 

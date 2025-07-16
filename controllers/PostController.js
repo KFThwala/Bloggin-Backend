@@ -217,4 +217,29 @@ export const toggleLikePost = async (req, res) => {
   }
 };
 
+export const getMyPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({ author: req.user._id })
+      .populate("author", "fullName avatar")
+      .sort({ createdAt: -1 }); // newest first
+
+    const formattedPosts = posts.map((post) => ({
+      _id: post._id,
+      title: post.title,
+      image: post.image,
+      excerpt: post.excerpt || post.content?.substring(0, 150) + "...",
+      content: post.content,
+      createdAt: post.createdAt,
+      author: post.author,
+      liked: false, // placeholder; implement later if needed
+    }));
+
+    res.status(200).json(formattedPosts);
+  } catch (error) {
+    console.error("getMyPosts error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 
