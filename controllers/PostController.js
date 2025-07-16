@@ -33,30 +33,30 @@ export const createPost = async (req, res) => {
 
 
 // Get all posts (with optional pagination)
-// export const getPosts = async (req, res) => {
-//   try {
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = parseInt(req.query.limit) || 10;
-//     const skip = (page - 1) * limit;
+export const getPosts = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-//     const posts = await Post.find()
-//       .populate("author", "fullName email") // populate author info
-//       .sort({ createdAt: -1 })
-//       .skip(skip)
-//       .limit(limit);
+    const posts = await Post.find()
+      .populate("author", "fullName email") // populate author info
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-//     const total = await Post.countDocuments();
+    const total = await Post.countDocuments();
 
-//     res.json({
-//       page,
-//       totalPages: Math.ceil(total / limit),
-//       totalPosts: total,
-//       posts,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
+    res.json({
+      page,
+      totalPages: Math.ceil(total / limit),
+      totalPosts: total,
+      posts,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // Get single post by id
 export const getPostById = async (req, res) => {
