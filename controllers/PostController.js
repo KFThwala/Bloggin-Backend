@@ -1,6 +1,6 @@
 import Post from "../models/Post.js";
 
-import Comment from "../models/Comment.js"; // ✅ Required
+
 
 
 // Create a new post
@@ -38,14 +38,25 @@ export const getPosts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const searchQuery = req.query.search || "";
 
-    const posts = await Post.find()
-      .populate("author", "fullName email") // populate author info
+    // Build dynamic filter
+    const searchFilter = searchQuery
+      ? {
+          $or: [
+            { title: { $regex: searchQuery, $options: "i" } },
+            { content: { $regex: searchQuery, $options: "i" } },
+          ],
+        }
+      : {};
+
+    const posts = await Post.find(searchFilter)
+      .populate("author", "fullName email")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Post.countDocuments();
+    const total = await Post.countDocuments(searchFilter);
 
     res.json({
       page,
@@ -240,6 +251,8 @@ export const getMyPosts = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 
 

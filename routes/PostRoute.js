@@ -10,7 +10,8 @@ import {
   getSuggestedPosts,
   getTrendingPosts,
   toggleLikePost,
-  getMyPosts
+  getMyPosts,
+  getPosts
 } from "../controllers/PostController.js";
 
 import upload, { uploadToCloudinary } from "../middleware/Upload.js";
@@ -26,6 +27,8 @@ router.post(
   uploadToCloudinary("posts"), // optional Cloudinary folder name
   createPost
 );
+
+router.get("/all", protect, getPosts);
 
 router.get("/getMy", protect, getMyPosts);
 // GET /api/posts
