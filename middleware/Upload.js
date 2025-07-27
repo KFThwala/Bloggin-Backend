@@ -4,8 +4,10 @@ import cloudinary from "../config/cloudinary.js";
 import streamifier from "streamifier";
 
 // Memory storage (no files written to disk)
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 }, // ✅ 2MB limit
+});
 
 // Cloudinary uploader middleware
 export const uploadToCloudinary = (folder) => async (req, res, next) => {

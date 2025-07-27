@@ -242,7 +242,9 @@ export const getMyPosts = async (req, res) => {
       content: post.content,
       createdAt: post.createdAt,
       author: post.author,
-      liked: false, // placeholder; implement later if needed
+      comments: post.comments || [],     // ✅ Add this line
+      likes: post.likes || [],           // ✅ Add this line
+      liked: false,                      // placeholder
     }));
 
     res.status(200).json(formattedPosts);
@@ -251,6 +253,36 @@ export const getMyPosts = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+export const getPostsByUserId = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const posts = await Post.find({ author: userId })
+      .populate("author", "fullName avatar comments likes")
+      .sort({ createdAt: -1 });
+
+    const formattedPosts = posts.map((post) => ({
+      _id: post._id,
+      title: post.title,
+      image: post.image,
+      excerpt: post.excerpt || post.content?.substring(0, 150) + "...",
+      content: post.content,
+      createdAt: post.createdAt,
+      author: post.author,
+      comments: post.comments || [],
+      likes: post.likes || [],
+      liked: false, // optional: implement "liked by current user" later
+    }));
+
+    res.status(200).json(formattedPosts);
+  } catch (error) {
+    console.error("getPostsByUserId error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 
 

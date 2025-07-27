@@ -11,7 +11,8 @@ import {
   getTrendingPosts,
   toggleLikePost,
   getMyPosts,
-  getPosts
+  getPosts,
+  getPostsByUserId
 } from "../controllers/PostController.js";
 
 import upload, { uploadToCloudinary } from "../middleware/Upload.js";
@@ -45,6 +46,8 @@ router.get("/suggested", protect, getSuggestedPosts);
 
 // GET /api/posts/trending
 router.get("/trending", protect,getTrendingPosts);
+
+router.get("/user/:id", getPostsByUserId); 
 
 router.post("/:postId/like", protect, toggleLikePost);
 
