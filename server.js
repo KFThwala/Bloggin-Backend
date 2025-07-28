@@ -27,6 +27,12 @@ app.use("/api/comments", commentRoutes)
 // Start server
 const PORT = process.env.PORT || 5000;
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something broke!' });
+});
+
+
 app.listen(PORT, () => {
   console.log(`🚀 Server started on http://localhost:${PORT}`);
 });

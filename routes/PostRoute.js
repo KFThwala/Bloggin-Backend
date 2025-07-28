@@ -32,11 +32,6 @@ router.post(
 router.get("/all", protect, getPosts);
 
 router.get("/getMy", protect, getMyPosts);
-// GET /api/posts
-// router.get("/", getPosts);
-
-// GET /api/posts/featured
-// router.get("/featured", getFeaturedPosts);
 
 // GET /api/posts/recent
 router.get("/recent", getRecentPosts);
@@ -55,7 +50,10 @@ router.post("/:postId/like", protect, toggleLikePost);
 router.get("/:id", getPostById);
 
 // PUT /api/posts/:id
-router.put("/:id", protect, updatePost);
+router.put("/:id", 
+   upload.single("image"), // middleware to read the file
+  uploadToCloudinary("posts"), // middleware to upload to Cloudinary
+  protect, updatePost);
 
 // DELETE /api/posts/:id
 router.delete("/:id", protect, deletePost);

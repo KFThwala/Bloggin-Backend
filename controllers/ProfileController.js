@@ -2,7 +2,7 @@ import User from "../models/User.js";
 export const getProfile = async (req, res) => {
   try {
     const user = req.user; // Comes from authMiddleware
-    console.log(user)
+   
     if(!user) return res.status(404).json({ message: "User not found" });
     res.status(200).json(user);
 

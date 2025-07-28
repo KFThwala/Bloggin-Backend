@@ -73,7 +73,7 @@ export const getPosts = async (req, res) => {
 export const getPostById = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
-      .populate("author", "fullName email")
+      .populate("author", "fullName email avatar")
       .populate({
         path: "comments",
         populate: { path: "author", select: "fullName" },
@@ -242,9 +242,9 @@ export const getMyPosts = async (req, res) => {
       content: post.content,
       createdAt: post.createdAt,
       author: post.author,
-      comments: post.comments || [],     // ✅ Add this line
-      likes: post.likes || [],           // ✅ Add this line
-      liked: false,                      // placeholder
+      comments: post.comments || [],    
+      likes: post.likes || [],          
+      liked: false,                      
     }));
 
     res.status(200).json(formattedPosts);

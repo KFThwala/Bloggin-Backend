@@ -6,12 +6,12 @@ import streamifier from "streamifier";
 // Memory storage (no files written to disk)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024 }, // ✅ 2MB limit
+  limits: { fileSize: 4 * 1024 * 1024 }, // ✅ 4MB limit
 });
 
 // Cloudinary uploader middleware
 export const uploadToCloudinary = (folder) => async (req, res, next) => {
-     console.log("req.file:", req.file);
+  
   if (!req.file) return next(); // No file uploaded
 
   const streamUpload = () =>
