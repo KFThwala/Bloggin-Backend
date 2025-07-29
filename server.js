@@ -20,7 +20,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: "https://blogging-six-sigma.vercel.app",
+  origin: "https://blogging-one-eta.vercel.app",
   credentials: true,
 }));
 
