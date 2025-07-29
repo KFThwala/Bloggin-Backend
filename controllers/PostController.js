@@ -51,7 +51,7 @@ export const getPosts = async (req, res) => {
       : {};
 
     const posts = await Post.find(searchFilter)
-      .populate("author", "fullName email")
+      .populate("author", "fullName email avatar")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
