@@ -20,9 +20,10 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: "https://blogging-five-pi.vercel.app/",
+  origin: "https://blogging-six-sigma.vercel.app",
   credentials: true,
 }));
+
 app.use(express.json());
 
 // Helmet with Content Security Policy
