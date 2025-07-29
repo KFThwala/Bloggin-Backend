@@ -1,11 +1,13 @@
 import express from "express";
 import { config } from "dotenv";
 import cors from "cors";
+import helmet from "helmet";
 import connectDB from "./config/db.js";
 import AuthRoutes from "./routes/AuthRoute.js"
 import ProfileRoutes from "./routes/ProfileRoute.js"
 import postRoutes from "./routes/PostRoute.js"
 import commentRoutes from "./routes/CommentRoute.js"
+
 
 const app = express();
 
@@ -15,6 +17,21 @@ config();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+import helmet from "helmet";
+
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https://bloggin-backend-c4l0.onrender.com"],
+      scriptSrc: ["'self'"], // optional
+      styleSrc: ["'self'", "'unsafe-inline'"], // optional
+    },
+  })
+);
+
 
 // Connect to MongoDB
 connectDB();
