@@ -18,8 +18,6 @@ config();
 app.use(cors());
 app.use(express.json());
 
-import helmet from "helmet";
-
 app.use(
   helmet.contentSecurityPolicy({
     useDefaults: true,
