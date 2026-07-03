@@ -5,12 +5,14 @@ import {
   getPostById,
   updatePost,
   deletePost,
-  // getFeaturedPosts,
+    // getFeaturedPosts,
+    getMostLikedPost,
   getRecentPosts,
   getSuggestedPosts,
   getTrendingPosts,
   toggleLikePost,
   getMyPosts,
+  getCategories,
   getPosts,
   getPostsByUserId
 } from "../controllers/PostController.js";
@@ -41,6 +43,8 @@ router.get("/suggested", protect, getSuggestedPosts);
 
 // GET /api/posts/trending
 router.get("/trending", protect,getTrendingPosts);
+router.get("/categories", getCategories);
+router.get("/most-liked", getMostLikedPost);
 
 router.get("/user/:id", getPostsByUserId); 
 

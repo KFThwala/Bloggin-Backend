@@ -14,7 +14,7 @@ export const getProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const { fullName, avatar } = req.body;
+    const { fullName, avatar, bio } = req.body;
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -35,6 +35,8 @@ export const updateProfile = async (req, res) => {
     if (req.file?.cloudinaryUrl) {
       user.avatar = req.file.cloudinaryUrl;
     }
+
+    if (bio) user.bio = bio;
 
     await user.save();
 

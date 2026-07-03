@@ -38,9 +38,11 @@ export const getPosts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const searchQuery = req.query.search || "";
 
-    // Build dynamic filter
+    const searchQuery = req.query.search || "";
+    const category = req.query.category || "";
+
+    // search filter
     const searchFilter = searchQuery
       ? {
           $or: [
@@ -50,13 +52,23 @@ export const getPosts = async (req, res) => {
         }
       : {};
 
-    const posts = await Post.find(searchFilter)
+    // category filter (NEW)
+    const categoryFilter = category
+      ? { categories: category } // or { categories: { $in: [category] } }
+      : {};
+
+    const filter = {
+      ...searchFilter,
+      ...categoryFilter,
+    };
+
+    const posts = await Post.find(filter)
       .populate("author", "fullName email avatar")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await Post.countDocuments(searchFilter);
+    const total = await Post.countDocuments(filter);
 
     res.json({
       page,
@@ -65,6 +77,34 @@ export const getPosts = async (req, res) => {
       posts,
     });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getMostLikedPost = async (req, res) => {
+  try {
+    const post = await Post.aggregate([
+      {
+        $addFields: {
+          likesCount: {
+            $size: {
+              $ifNull: ["$likes", []], // 🔥 prevents crash
+            },
+          },
+        },
+      },
+      { $sort: { likesCount: -1 } },
+      { $limit: 1 },
+    ]);
+
+    const fullPost = await Post.populate(post, {
+      path: "author",
+      select: "fullName avatar",
+    });
+
+    res.json(fullPost[0] || null);
+  } catch (err) {
+    console.error("MOST LIKED ERROR:", err); // 🔥 important debug
     res.status(500).json({ error: err.message });
   }
 };
@@ -142,14 +182,17 @@ export const deletePost = async (req, res) => {
 
 export const getRecentPosts = async (req, res) => {
   try {
+    // Get limit from query string, default to 4
+    const limit = parseInt(req.query.limit, 10) || 4;
+
     const posts = await Post.find()
       .sort({ createdAt: -1 })
-      .limit(10)
-      .populate("author", "fullName avatar"); // include avatar if you want to show user image
+      .limit(limit)
+      .populate("author", "fullName avatar");
 
     res.json(posts);
   } catch (error) {
-    console.error("Error in getRecentPosts:", error); // log to server console
+    console.error("Error in getRecentPosts:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -280,6 +323,35 @@ export const getPostsByUserId = async (req, res) => {
   } catch (error) {
     console.error("getPostsByUserId error:", error.message);
     res.status(500).json({ error: error.message });
+  }
+};
+
+// controllers/postController.js
+
+export const getCategories = async (req, res) => {
+  try {
+    const posts = await Post.find({}, "categories");
+
+    const map = {};
+
+    posts.forEach((post) => {
+      post.categories?.forEach((cat) => {
+        const key = cat.trim();
+
+        if (!key) return;
+
+        map[key] = (map[key] || 0) + 1;
+      });
+    });
+
+    const categories = Object.keys(map).map((name) => ({
+      name,
+      count: map[name],
+    }));
+
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 
